@@ -69,7 +69,7 @@ public class Lossless_eid {
         }
     }
 
-    private static CardTerminal pickTerminal(List<CardTerminal> terminals) {
+    public static CardTerminal pickTerminal(List<CardTerminal> terminals) {
         if (terminals.size() > 1) {
             System.out.println("Available readers:\n");
             int c = 1;

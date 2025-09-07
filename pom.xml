@@ -12,6 +12,8 @@
 
     <modules>
         <module>eid_reader</module>
+        <module>eid_applet</module>
+        <module>eid_viewer</module>
     </modules>
 
     <properties>
