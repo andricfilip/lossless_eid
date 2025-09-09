@@ -26,7 +26,7 @@ public class GUIPanel extends JPanel {
         private static final long serialVersionUID = 5830429844217109957L;
 
         private static final ResourceBundle bundle = ResourceBundle.getBundle(
-                "net.devbase.jfreesteel.gui.jfreesteel-lib-gui"); //$NON-NLS-1$
+                "lossless-lib-gui"); //$NON-NLS-1$
 
         private JImagePanel photo;
         private Image throbber;
@@ -112,7 +112,7 @@ public class GUIPanel extends JPanel {
             setBorder(new EmptyBorder(12, 12, 12, 12));
             setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
-            URL throbberURL = GUIPanel.class.getResource("/net/devbase/jfreesteel/gui/throbber.gif");
+            URL throbberURL = GUIPanel.class.getResource("throbber.gif");
             throbber = Toolkit.getDefaultToolkit().createImage(throbberURL);
 
             photo = new JImagePanel(throbber);

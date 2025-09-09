@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -54,12 +55,12 @@ public class EidViewer extends JPanel implements Reader.ReaderListener {
             "eidviewer20.png", "eidviewer26.png", "eidviewer32.png"};
 
     private static final String ICON_RESOURCE =
-            "/net/devbase/jfreesteel/viewer/smart-card-reader2.jpg";
+            "smart-card-reader2.jpg";
 
     private final static Logger logger = LoggerFactory.getLogger(EidCard.class);
 
     private static final ResourceBundle bundle = ResourceBundle.getBundle(
-            "com.andric.lossless_eid.viewer.viewer");
+            "viewer");
 
     private EidInfo info;
     private Image photo;
@@ -78,7 +79,7 @@ public class EidViewer extends JPanel implements Reader.ReaderListener {
         JPanel splash = new JPanel();
         splash.setBackground(Color.WHITE);
         splash.setLayout(new GridBagLayout());
-        ImageIcon insertCardIcon = new ImageIcon(getClass().getResource(ICON_RESOURCE));
+        ImageIcon insertCardIcon = new ImageIcon(getClass().getResource("/"+ICON_RESOURCE));
         JLabel label = getLabel(insertCardIcon);
         splash.add(label, new GridBagConstraints());
 
@@ -143,7 +144,7 @@ public class EidViewer extends JPanel implements Reader.ReaderListener {
         Locale.setDefault(new Locale("sr", "RS"));
 
         // Create and set up the window
-        JFrame frame = new JFrame(bundle.getString("FreesteelTitle"));
+        JFrame frame = new JFrame(bundle.getString("lossless_title"));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
@@ -151,8 +152,18 @@ public class EidViewer extends JPanel implements Reader.ReaderListener {
         List<Image> icons = new ArrayList<Image>();
         for (String iconFile : ICON_FILES) {
             try {
-                icons.add(ImageIO.read(frame.getClass().getResource(
-                        "/net/devbase/jfreesteel/viewer/" + iconFile)));
+                URL iconUrl = EidViewer.class.getResource("/"+ iconFile);
+                String iconPath = EidViewer.class.getResource("/"+ iconFile).toString();  // Promenjeno
+
+                System.out.println(iconPath);
+
+                // Proveri da li je URL null
+                if (iconUrl == null) {
+                    logger.error("Icon file not found: " + iconFile);
+                } else {
+                    System.out.println("Trying to load icon from: " + iconUrl.toString());
+                    icons.add(ImageIO.read(iconUrl));
+                }
             } catch (IOException e) {
                 logger.error("Could not find icon file "+iconFile, e);
             }

@@ -26,6 +26,15 @@ public class Lossless_eid {
         // get the terminal
         try {
             TerminalFactory factory = TerminalFactory.getDefault();
+
+            List<CardTerminal> terminals = factory.terminals().list();
+
+
+            if (terminals.isEmpty()) {
+                System.out.println("Nema dostupnih čitača kartica!");
+                return;
+            }
+
             terminal = pickTerminal(factory.terminals().list());
 
             System.out.println("Using reader   : " + terminal);
