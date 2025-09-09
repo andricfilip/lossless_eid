@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  eidviewer:
+    build: .
+    container_name: eidviewer
+    environment:
+      - DISPLAY=${DISPLAY}              # host X11
+      - QT_X11_NO_MITSHM=1              # pomaže za GUI
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - $HOME/.Xauthority:/root/.Xauthority:ro
+      - /var/run/dbus:/var/run/dbus
+
+    devices:
+      - "/dev/bus/usb:/dev/bus/usb"    # prosledi USB čitač
+    privileged: true
+    network_mode: host
+    restart: unless-stopped
