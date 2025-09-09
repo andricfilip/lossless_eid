@@ -1,19 +1,16 @@
 version: '3.8'
-
 services:
   eidviewer:
     build: .
     container_name: eidviewer
     environment:
-      - DISPLAY=${DISPLAY}              # host X11
-      - QT_X11_NO_MITSHM=1              # pomaže za GUI
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - $HOME/.Xauthority:/root/.Xauthority:ro
       - /var/run/dbus:/var/run/dbus
-
-    devices:
-      - "/dev/bus/usb:/dev/bus/usb"    # prosledi USB čitač
-    privileged: true
+      - /var/run/pcscd:/var/run/pcscd:ro     # <-- montiraj hostov pcscd socket (read-only)
+    privileged: false
     network_mode: host
     restart: unless-stopped

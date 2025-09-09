@@ -27,4 +27,5 @@ RUN apt-get update && apt-get install -y \
 COPY --from=build /app/eid_viewer/target/eid_viewer-*.jar /app/eid_viewer.jar
 
 # Startuj pcscd u foreground-u i GUI aplikaciju
-ENTRYPOINT sh -c "pcscd -f & java -jar /app/eid_viewer.jar"
+# ne pokreći pcscd ovde — koristi hostov daemon preko /var/run/pcscd
+ENTRYPOINT ["sh","-c","java -jar /app/eid_viewer.jar"]
