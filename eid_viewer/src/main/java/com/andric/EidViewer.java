@@ -1,14 +1,7 @@
 package com.andric;
 
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -36,10 +29,12 @@ import javax.imageio.ImageIO;
 
 
 import com.andric.gui.GUIPanel;
+import com.formdev.flatlaf.FlatDarkLaf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.itextpdf.text.DocumentException;
+
 
 /**
  * EidViewer is a singleton class behind EidViewer application
@@ -72,7 +67,7 @@ public class EidViewer extends JPanel implements Reader.ReaderListener {
     private static EidViewer instance;
 
     public EidViewer() {
-        setSize(new Dimension(720, 350));
+        setSize(new Dimension(750, 350));
         setLayout(new CardLayout(0, 0));
 
         /* Create "insert card" splash screen */
@@ -135,89 +130,164 @@ public class EidViewer extends JPanel implements Reader.ReaderListener {
     /**
      * Create the GUI and show it.
      */
-    private static void createAndShowGUI() {
-        // Enable font anti aliasing
-        System.setProperty("awt.useSystemAAFontSettings","on");
-        System.setProperty("swing.aatext", "true");
+//    private static void createAndShowGUI() {
+//        // Enable font anti aliasing
+//        System.setProperty("awt.useSystemAAFontSettings","on");
+//        System.setProperty("swing.aatext", "true");
+//
+//        // Set sr_RS locale as default
+//        Locale.setDefault(new Locale("sr", "RS"));
+//
+//        // Create and set up the window
+//        JFrame frame = new JFrame(bundle.getString("lossless_title"));
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        frame.setLocationRelativeTo(null);
+//
+//        // Set window icon
+//        List<Image> icons = new ArrayList<Image>();
+//        for (String iconFile : ICON_FILES) {
+//            try {
+//                URL iconUrl = EidViewer.class.getResource("/"+ iconFile);
+//                String iconPath = EidViewer.class.getResource("/"+ iconFile).toString();  // Promenjeno
+//
+////                System.out.println(iconPath);
+//
+//                // Proveri da li je URL null
+//                if (iconUrl == null) {
+//                    logger.error("Icon file not found: " + iconFile);
+//                } else {
+////                    System.out.println("Trying to load icon from: " + iconUrl.toString());
+//                    icons.add(ImageIO.read(iconUrl));
+//                }
+//            } catch (IOException e) {
+//                logger.error("Could not find icon file "+iconFile, e);
+//            }
+//        }
+//        frame.setIconImages(icons);
+//
+//        // Set default look and feel
+//        try {
+//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(frame,
+//                    bundle.getString("GUIError") + ": " + e.getMessage(),
+//                    bundle.getString("GUIErrorTitle"),
+//                    JOptionPane.WARNING_MESSAGE);
+//            logger.error("Error setting look and feel", e);
+//        }
+//
+//        // Test for Java 1.6 or newer
+//        if(getVersion() < 1.6) {
+//            JOptionPane.showMessageDialog(frame,
+//                    bundle.getString("JavaError"),
+//                    bundle.getString("JavaErrorTitle"),
+//                    JOptionPane.ERROR_MESSAGE);
+//            System.exit(1);
+//        }
+//
+//        // Get the list of terminals
+//        CardTerminal terminal = null;
+//        try {
+//            TerminalFactory factory = TerminalFactory.getDefault();
+//            terminal = pickTerminalGUI(frame, factory.terminals().list());
+//
+//        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(frame,
+//                    bundle.getString("ReaderError") + ": " + e.getMessage(),
+//                    bundle.getString("ReaderErrorTitle"),
+//                    JOptionPane.ERROR_MESSAGE);
+//            logger.error("Reader error", e);
+//            System.exit(1);
+//        }
+//
+//        // Create and set up the content pane
+//        EidViewer app = EidViewer.getInstance();
+//        app.setFrame(frame);
+//        frame.getContentPane().add(app, BorderLayout.CENTER);
+//        frame.pack();
+//
+//        // Create reader and add GUI as the listener
+//        Reader reader = new Reader(terminal);
+//        reader.addCardListener(app);
+//
+//        // Display the window
+//        frame.setVisible(true);
+//    }
 
-        // Set sr_RS locale as default
-        Locale.setDefault(new Locale("sr", "RS"));
+private static void createAndShowGUI() {
+    // Enable font anti aliasing
+    System.setProperty("awt.useSystemAAFontSettings","on");
+    System.setProperty("swing.aatext", "true");
 
-        // Create and set up the window
-        JFrame frame = new JFrame(bundle.getString("lossless_title"));
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
+    // Set sr_RS locale as default
+    Locale.setDefault(new Locale("sr", "RS"));
 
-        // Set window icon
-        List<Image> icons = new ArrayList<Image>();
-        for (String iconFile : ICON_FILES) {
-            try {
-                URL iconUrl = EidViewer.class.getResource("/"+ iconFile);
-                String iconPath = EidViewer.class.getResource("/"+ iconFile).toString();  // Promenjeno
-
-                System.out.println(iconPath);
-
-                // Proveri da li je URL null
-                if (iconUrl == null) {
-                    logger.error("Icon file not found: " + iconFile);
-                } else {
-                    System.out.println("Trying to load icon from: " + iconUrl.toString());
-                    icons.add(ImageIO.read(iconUrl));
-                }
-            } catch (IOException e) {
-                logger.error("Could not find icon file "+iconFile, e);
-            }
-        }
-        frame.setIconImages(icons);
-
-        // Set default look and feel
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(frame,
-                    bundle.getString("GUIError") + ": " + e.getMessage(),
-                    bundle.getString("GUIErrorTitle"),
-                    JOptionPane.WARNING_MESSAGE);
-            logger.error("Error setting look and feel", e);
-        }
-
-        // Test for Java 1.6 or newer
-        if(getVersion() < 1.6) {
-            JOptionPane.showMessageDialog(frame,
-                    bundle.getString("JavaError"),
-                    bundle.getString("JavaErrorTitle"),
-                    JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
-        }
-
-        // Get the list of terminals
-        CardTerminal terminal = null;
-        try {
-            TerminalFactory factory = TerminalFactory.getDefault();
-            terminal = pickTerminalGUI(frame, factory.terminals().list());
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(frame,
-                    bundle.getString("ReaderError") + ": " + e.getMessage(),
-                    bundle.getString("ReaderErrorTitle"),
-                    JOptionPane.ERROR_MESSAGE);
-            logger.error("Reader error", e);
-            System.exit(1);
-        }
-
-        // Create and set up the content pane
-        EidViewer app = EidViewer.getInstance();
-        app.setFrame(frame);
-        frame.getContentPane().add(app, BorderLayout.CENTER);
-        frame.pack();
-
-        // Create reader and add GUI as the listener
-        Reader reader = new Reader(terminal);
-        reader.addCardListener(app);
-
-        // Display the window
-        frame.setVisible(true);
+    // 🌟 Modern look & feel (FlatLaf)
+    try {
+        // Možeš ovde da biraš temu:
+        // UIManager.setLookAndFeel(new FlatLightLaf()); // svetla
+        UIManager.setLookAndFeel(new FlatDarkLaf());   // tamna
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+
+    // Create and set up the window
+    JFrame frame = new JFrame(bundle.getString("lossless_title"));
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setResizable(false);
+    frame.setLocationRelativeTo(null);
+    frame.setMinimumSize(new Dimension(750, 400));
+    UIManager.put("defaultFont", new Font("Segoe UI", Font.PLAIN, 14));
+
+    // Set window icon
+    List<Image> icons = new ArrayList<>();
+    for (String iconFile : ICON_FILES) {
+        try {
+            URL iconUrl = EidViewer.class.getResource("/" + iconFile);
+            if (iconUrl != null) {
+                icons.add(ImageIO.read(iconUrl));
+            }
+        } catch (IOException ignored) {}
+    }
+    frame.setIconImages(icons);
+
+    // Test for Java 1.6 or newer
+    if(getVersion() < 1.6) {
+        JOptionPane.showMessageDialog(frame,
+                bundle.getString("JavaError"),
+                bundle.getString("JavaErrorTitle"),
+                JOptionPane.ERROR_MESSAGE);
+        System.exit(1);
+    }
+
+    // Get the list of terminals
+    CardTerminal terminal = null;
+    try {
+        TerminalFactory factory = TerminalFactory.getDefault();
+        terminal = pickTerminalGUI(frame, factory.terminals().list());
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(frame,
+                bundle.getString("ReaderError") + ": " + e.getMessage(),
+                bundle.getString("ReaderErrorTitle"),
+                JOptionPane.ERROR_MESSAGE);
+        logger.error("Reader error", e);
+        System.exit(1);
+    }
+
+    // Create and set up the content pane
+    EidViewer app = EidViewer.getInstance();
+    app.setFrame(frame);
+
+    frame.getContentPane().add(app, BorderLayout.CENTER);
+    frame.pack();
+
+    // Create reader and add GUI as the listener
+    Reader reader = new Reader(terminal);
+    reader.addCardListener(app);
+
+    // Display the window
+    frame.setVisible(true);
+}
 
     public static CardTerminal pickTerminalGUI(JFrame frame, List<CardTerminal> terminals) {
         if (terminals.size() == 1) {
@@ -292,6 +362,7 @@ public class EidViewer extends JPanel implements Reader.ReaderListener {
             JButton button = new JButton(bundle.getString("SavePDF"));
             button.setEnabled(false);
             button.setPreferredSize(new Dimension(130, 36));
+            button.setMargin(new Insets(5,0,5,0));
             button.setSize(new Dimension(200, 0));
             button.addActionListener(new ButtonActionListener());
             return button;
@@ -303,7 +374,7 @@ public class EidViewer extends JPanel implements Reader.ReaderListener {
         @Override public void actionPerformed(ActionEvent ev) {
 
             final JFileChooser fc = new JFileChooser();
-            fc.setSelectedFile(new File("report_" + info.getPersonalNumber() + ".pdf"));
+            fc.setSelectedFile(new File("report_" + info.getNameFull() + ".pdf"));
             FileNameExtensionFilter filter = new FileNameExtensionFilter(
                     "PDF", "pdf");
             fc.setFileFilter(filter);

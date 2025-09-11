@@ -17,6 +17,11 @@
     <packaging>jar</packaging>
 
     <dependencies>
+<!--        <dependency>-->
+<!--            <groupId>pmf.kg</groupId>-->
+<!--            <artifactId>eid_api</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
         <!-- SLF4J API -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -56,6 +61,12 @@
             <artifactId>easymockclassextension</artifactId>
             <version>3.2</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.38</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

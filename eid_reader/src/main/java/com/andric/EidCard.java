@@ -18,8 +18,10 @@ import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Smart card wrapper, abstract interface.
@@ -41,7 +43,6 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings("restriction") // Various javax.smartcardio.*
 public abstract class EidCard {
-
     protected final static Logger logger = LoggerFactory.getLogger(EidCard.class);
 
     protected Card card;
@@ -190,70 +191,62 @@ public abstract class EidCard {
 
     // tags: 1545 - 1553
     @SuppressWarnings("serial")
-    static final Map<Integer, EidInfo.Tag> DOCUMENT_TAGMAPPER = new HashMap<Integer, EidInfo.Tag>() {{
-        put(1545, EidInfo.Tag.NULL); // = SRB (issuing authority country code?)
-        put(1546, EidInfo.Tag.DOC_REG_NO);
-        put(1547, EidInfo.Tag.NULL); // = ID
-        put(1548, EidInfo.Tag.NULL); // = ID<docRegNo>
-        put(1549, EidInfo.Tag.ISSUING_DATE);
-        put(1550, EidInfo.Tag.EXPIRY_DATE);
-        put(1551, EidInfo.Tag.ISSUING_AUTHORITY);
-        put(1552, EidInfo.Tag.NULL); // = SC
-        put(1553, EidInfo.Tag.NULL); // = SC
+    static final Map<Integer, Tag> DOCUMENT_TAGMAPPER = new HashMap<Integer, Tag>() {{
+        put(1545, Tag.NULL); // = SRB (issuing authority country code?)
+        put(1546, Tag.DOC_REG_NO);
+        put(1547, Tag.NULL); // = ID
+        put(1548, Tag.NULL); // = ID<docRegNo>
+        put(1549, Tag.ISSUING_DATE);
+        put(1550, Tag.EXPIRY_DATE);
+        put(1551, Tag.ISSUING_AUTHORITY);
+        put(1552, Tag.NULL); // = SC
+        put(1553, Tag.NULL); // = SC
     }};
 
     // tags: 1558 - 1567
     @SuppressWarnings("serial")
-    static final Map<Integer, EidInfo.Tag> PERSONAL_TAGMAPPER = new HashMap<Integer, EidInfo.Tag>() {{
-        put(1558, EidInfo.Tag.PERSONAL_NUMBER);
-        put(1559, EidInfo.Tag.SURNAME);
-        put(1560, EidInfo.Tag.GIVEN_NAME);
-        put(1561, EidInfo.Tag.PARENT_GIVEN_NAME);
-        put(1562, EidInfo.Tag.SEX);
-        put(1563, EidInfo.Tag.PLACE_OF_BIRTH);
-        put(1564, EidInfo.Tag.COMMUNITY_OF_BIRTH);
-        put(1565, EidInfo.Tag.STATE_OF_BIRTH);
-        put(1566, EidInfo.Tag.DATE_OF_BIRTH);
-        put(1567, EidInfo.Tag.NULL); // = SRB (state of birth country code?)
+    static final Map<Integer, Tag> PERSONAL_TAGMAPPER = new HashMap<Integer, Tag>() {{
+        put(1558, Tag.PERSONAL_NUMBER);
+        put(1559, Tag.SURNAME);
+        put(1560, Tag.GIVEN_NAME);
+        put(1561, Tag.PARENT_GIVEN_NAME);
+        put(1562, Tag.SEX);
+        put(1563, Tag.PLACE_OF_BIRTH);
+        put(1564, Tag.COMMUNITY_OF_BIRTH);
+        put(1565, Tag.STATE_OF_BIRTH);
+        put(1566, Tag.DATE_OF_BIRTH);
+        put(1567, Tag.NULL); // = SRB (state of birth country code?)
     }};
 
     // tags: 1568 .. 1578
     @SuppressWarnings("serial")
-    static final Map<Integer, EidInfo.Tag> RESIDENCE_TAGMAPPER = new HashMap<Integer, EidInfo.Tag>() {{
-        put(1568, EidInfo.Tag.STATE);
-        put(1569, EidInfo.Tag.COMMUNITY);
-        put(1570, EidInfo.Tag.PLACE);
-        put(1571, EidInfo.Tag.STREET);
-        put(1572, EidInfo.Tag.HOUSE_NUMBER);
-        put(1573, EidInfo.Tag.HOUSE_LETTER);
-        put(1574, EidInfo.Tag.ENTRANCE);
-        put(1575, EidInfo.Tag.FLOOR);
-        put(1578, EidInfo.Tag.APPARTMENT_NUMBER);
-        put(1580, EidInfo.Tag.ADDRESS_DATE); // = default 01010001
+    static final Map<Integer, Tag> RESIDENCE_TAGMAPPER = new HashMap<Integer, Tag>() {{
+        put(1568, Tag.STATE);
+        put(1569, Tag.COMMUNITY);
+        put(1570, Tag.PLACE);
+        put(1571, Tag.STREET);
+        put(1572, Tag.HOUSE_NUMBER);
+        put(1573, Tag.HOUSE_LETTER);
+        put(1574, Tag.ENTRANCE);
+        put(1575, Tag.FLOOR);
+        put(1578, Tag.APPARTMENT_NUMBER);
+        put(1580, Tag.ADDRESS_DATE); // = default 01010001
         // AddressLabel ?
     }};
 
-    /**
-     * Add all raw tags to EidInfo builder.
-     *
-     * @param builder EidInfo builder
-     * @param rawTagMap Parsed map of raw byte strings by TLV code
-     * @param tagMapper Map translating Tag codes into EidInfo tags; use {@code Tag.NULL}
-     *     if tag should be silently ignored
-     * @return Raw map of unknown tags
-     */
+
     protected Map<Integer, byte[]> addAllToBuilder(
             EidInfo.Builder builder,
             final Map<Integer, byte[]> rawTagMap,
-            final Map<Integer, EidInfo.Tag> tagMapper) {
+            final Map<Integer, Tag> tagMapper) {
 
         Map<Integer, byte[]> unknownTags = new HashMap<Integer, byte[]>();
 
         for (Map.Entry<Integer, byte[]> entry : rawTagMap.entrySet()) {
             if (tagMapper.containsKey(entry.getKey())) {
                 // tag is known, ignore if null or decode and add value to the builder
-                EidInfo.Tag tag = tagMapper.get(entry.getKey());
-                if (tag == EidInfo.Tag.NULL) {
+                Tag tag = tagMapper.get(entry.getKey());
+                if (tag == Tag.NULL) {
                     continue;
                 }
 
