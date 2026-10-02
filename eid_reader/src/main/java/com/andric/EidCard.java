@@ -76,9 +76,20 @@ public abstract class EidCard {
         if(EidCardGemalto.isKnownAtr(atrBytes))
             return new EidCardGemalto(card);
 
-        throw new IllegalArgumentException(
-                String.format("EidCard: Card is not recognized as Serbian eID. Card ATR: %s",
-                        Utils.bytes2HexString(atrBytes)));
+        // Some newer card revisions expose a different ATR while still supporting
+        // the same eID applet; probe the applet before rejecting the card.
+        try {
+            logger.warn("Unknown ATR, trying Gemalto applet probe: {}", Utils.bytes2HexString(atrBytes));
+            return new EidCardGemalto(card);
+        } catch (CardException probeError) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "EidCard: Card is not recognized as Serbian eID. Card ATR: %s. Gemalto probe failed: %s",
+                            Utils.bytes2HexString(atrBytes),
+                            probeError.getMessage()),
+                    probeError);
+        }
+
     }
 
     /** Factory "selection" method */

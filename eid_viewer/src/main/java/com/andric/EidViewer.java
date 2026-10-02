@@ -23,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.imageio.ImageIO;
@@ -52,7 +53,7 @@ public class EidViewer extends JPanel implements Reader.ReaderListener {
     private static final String ICON_RESOURCE =
             "smart-card-reader2.jpg";
 
-    private final static Logger logger = LoggerFactory.getLogger(EidCard.class);
+    private final static Logger logger = LoggerFactory.getLogger(EidViewer.class);
 
     private static final ResourceBundle bundle = ResourceBundle.getBundle(
             "viewer");
@@ -62,7 +63,8 @@ public class EidViewer extends JPanel implements Reader.ReaderListener {
 
     private JFrame frame;
     private GUIPanel details;
-    private JButton button;
+    private JButton saveButton;
+    private JButton scriptButton;
 
     private static EidViewer instance;
 
@@ -130,91 +132,7 @@ public class EidViewer extends JPanel implements Reader.ReaderListener {
     /**
      * Create the GUI and show it.
      */
-//    private static void createAndShowGUI() {
-//        // Enable font anti aliasing
-//        System.setProperty("awt.useSystemAAFontSettings","on");
-//        System.setProperty("swing.aatext", "true");
-//
-//        // Set sr_RS locale as default
-//        Locale.setDefault(new Locale("sr", "RS"));
-//
-//        // Create and set up the window
-//        JFrame frame = new JFrame(bundle.getString("lossless_title"));
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        frame.setLocationRelativeTo(null);
-//
-//        // Set window icon
-//        List<Image> icons = new ArrayList<Image>();
-//        for (String iconFile : ICON_FILES) {
-//            try {
-//                URL iconUrl = EidViewer.class.getResource("/"+ iconFile);
-//                String iconPath = EidViewer.class.getResource("/"+ iconFile).toString();  // Promenjeno
-//
-////                System.out.println(iconPath);
-//
-//                // Proveri da li je URL null
-//                if (iconUrl == null) {
-//                    logger.error("Icon file not found: " + iconFile);
-//                } else {
-////                    System.out.println("Trying to load icon from: " + iconUrl.toString());
-//                    icons.add(ImageIO.read(iconUrl));
-//                }
-//            } catch (IOException e) {
-//                logger.error("Could not find icon file "+iconFile, e);
-//            }
-//        }
-//        frame.setIconImages(icons);
-//
-//        // Set default look and feel
-//        try {
-//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(frame,
-//                    bundle.getString("GUIError") + ": " + e.getMessage(),
-//                    bundle.getString("GUIErrorTitle"),
-//                    JOptionPane.WARNING_MESSAGE);
-//            logger.error("Error setting look and feel", e);
-//        }
-//
-//        // Test for Java 1.6 or newer
-//        if(getVersion() < 1.6) {
-//            JOptionPane.showMessageDialog(frame,
-//                    bundle.getString("JavaError"),
-//                    bundle.getString("JavaErrorTitle"),
-//                    JOptionPane.ERROR_MESSAGE);
-//            System.exit(1);
-//        }
-//
-//        // Get the list of terminals
-//        CardTerminal terminal = null;
-//        try {
-//            TerminalFactory factory = TerminalFactory.getDefault();
-//            terminal = pickTerminalGUI(frame, factory.terminals().list());
-//
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(frame,
-//                    bundle.getString("ReaderError") + ": " + e.getMessage(),
-//                    bundle.getString("ReaderErrorTitle"),
-//                    JOptionPane.ERROR_MESSAGE);
-//            logger.error("Reader error", e);
-//            System.exit(1);
-//        }
-//
-//        // Create and set up the content pane
-//        EidViewer app = EidViewer.getInstance();
-//        app.setFrame(frame);
-//        frame.getContentPane().add(app, BorderLayout.CENTER);
-//        frame.pack();
-//
-//        // Create reader and add GUI as the listener
-//        Reader reader = new Reader(terminal);
-//        reader.addCardListener(app);
-//
-//        // Display the window
-//        frame.setVisible(true);
-//    }
-
-private static void createAndShowGUI() {
+    private static void createAndShowGUI() {
     // Enable font anti aliasing
     System.setProperty("awt.useSystemAAFontSettings","on");
     System.setProperty("swing.aatext", "true");
@@ -310,8 +228,11 @@ private static void createAndShowGUI() {
     }
 
     private void showCardError(Exception e) {
+        String message = (e.getMessage() != null && !e.getMessage().isEmpty())
+                ? e.getMessage()
+                : e.getClass().getSimpleName();
         JOptionPane.showMessageDialog(this,
-                bundle.getString("CardError") + ": " + e.getMessage(),
+                bundle.getString("CardError") + ": " + message,
                 bundle.getString("CardErrorTitle"),
                 JOptionPane.ERROR_MESSAGE);
         logger.error("Card error", e);
@@ -319,32 +240,50 @@ private static void createAndShowGUI() {
 
     public void inserted(final EidCard card) {
         logger.info("Card inserted");
-        CardLayout cl = (CardLayout) this.getLayout();
-        cl.show(this, "details");
-
         try {
-            info = card.readEidInfo();
-            details.setDetails(info);
-            photo = card.readEidPhoto();
-            details.setPhoto(photo);
-            button.setEnabled(true);
+            final EidInfo readInfo = card.readEidInfo();
+            final Image readPhoto = card.readEidPhoto();
+            SwingUtilities.invokeLater(() -> {
+                info = readInfo;
+                photo = readPhoto;
+                CardLayout cl = (CardLayout) this.getLayout();
+                cl.show(this, "details");
+                details.setDetails(info);
+                details.setPhoto(photo);
+                saveButton.setEnabled(true);
+                updateScriptButtonText();
+            });
         } catch (CardException e) {
-            showCardError(e);
+            SwingUtilities.invokeLater(() -> showCardError(e));
         } catch (Exception e) {
-            showCardError(e);
+            SwingUtilities.invokeLater(() -> showCardError(e));
         }
     }
 
     public void removed() {
         logger.info("Card removed");
+        SwingUtilities.invokeLater(() -> {
+            CardLayout cl = (CardLayout) this.getLayout();
+            cl.show(this, "splash");
 
-        CardLayout cl = (CardLayout) this.getLayout();
-        cl.show(this, "splash");
+            saveButton.setEnabled(false);
+            info = null;
+            photo = null;
+            details.clearDetailsAndPhoto();
+        });
+    }
 
-        button.setEnabled(false);
-        info = null;
-        photo = null;
-        details.clearDetailsAndPhoto();
+    private void updateScriptButtonText() {
+        if (scriptButton != null) {
+            scriptButton.setText("Pismo: " + SerbianScript.modeLabel());
+        }
+    }
+
+    private void refreshCurrentCardDetails() {
+        if (info != null) {
+            details.setDetails(info);
+            details.setPhoto(photo);
+        }
     }
 
     /** UI panel for the application */
@@ -354,17 +293,28 @@ private static void createAndShowGUI() {
 
         public EidViewerPanel() {
             super();
-            button = newButton();
-            toolbar.add(button, BorderLayout.WEST);
+            saveButton = newSaveButton();
+            scriptButton = newScriptButton();
+            toolbar.add(saveButton, BorderLayout.WEST);
+            toolbar.add(scriptButton, BorderLayout.EAST);
         }
 
-        private JButton newButton() {
+        private JButton newSaveButton() {
             JButton button = new JButton(bundle.getString("SavePDF"));
             button.setEnabled(false);
             button.setPreferredSize(new Dimension(130, 36));
             button.setMargin(new Insets(5,0,5,0));
             button.setSize(new Dimension(200, 0));
             button.addActionListener(new ButtonActionListener());
+            return button;
+        }
+
+        private JButton newScriptButton() {
+            JButton button = new JButton();
+            button.setPreferredSize(new Dimension(150, 36));
+            button.setMargin(new Insets(5, 0, 5, 0));
+            button.addActionListener(new ScriptActionListener());
+            updateScriptButtonText();
             return button;
         }
     }
@@ -405,6 +355,15 @@ private static void createAndShowGUI() {
                     logger.error("Error creating PDF file", e);
                 }
             }
+        }
+    }
+
+    private class ScriptActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent ev) {
+            SerbianScript.setMode(SerbianScript.getMode().next());
+            updateScriptButtonText();
+            refreshCurrentCardDetails();
         }
     }
 }

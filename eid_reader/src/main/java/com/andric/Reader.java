@@ -119,7 +119,7 @@ public class Reader {
 
                         } catch (IllegalArgumentException e1) {
                             // wrong card
-                            logger.info("WRONG CARD");
+                            logger.warn("WRONG CARD on terminal {}: {}", terminal.getName(), e1.getMessage(), e1);
                             statusChanged = false;
                             wrongCardPresent = true;
 
@@ -198,7 +198,19 @@ public class Reader {
 
     public void connect() throws CardException {
         logger.info("CONNECT");
-        eidcard = EidCard.fromCard(terminal.connect("*"));
+        Card rawCard = terminal.connect("*");
+        String atr = Utils.bytes2HexString(rawCard.getATR().getBytes());
+        try {
+            eidcard = EidCard.fromCard(rawCard);
+            logger.info("Connected card ATR {}", atr);
+        } catch (RuntimeException e) {
+            try {
+                rawCard.disconnect(false);
+            } catch (CardException ignore) {
+                // Best effort cleanup when an unsupported card is present.
+            }
+            throw e;
+        }
     }
 
     public void disconnect() throws CardException {

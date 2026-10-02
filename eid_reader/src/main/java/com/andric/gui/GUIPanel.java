@@ -1,6 +1,7 @@
 package com.andric.gui;
 
 import com.andric.EidInfo;
+import com.andric.SerbianScript;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -59,21 +60,23 @@ public class GUIPanel extends JPanel {
         }
 
         public void setDetails(EidInfo info) {
-            nameFull.setText(info.getNameFull());
-            personalNumber.setText(info.getPersonalNumber());
-            dateOfBirth.setText(info.getDateOfBirth());
-            placeOfBirthFull.setText("<html>"+info.getPlaceOfBirthFull().replace("\n", "<br/>"));
+            SerbianScript.Script script = SerbianScript.resolveTargetScript(info.getNameFull());
 
-            placeFull.setText("<html>"+info.getPlaceFull(bundle.getString("EntranceLabelFormat"),
+            nameFull.setText(normalize(info.getNameFull(), script));
+            personalNumber.setText(normalize(info.getPersonalNumber(), script));
+            dateOfBirth.setText(normalize(info.getDateOfBirth(), script));
+            placeOfBirthFull.setText("<html>" + normalize(info.getPlaceOfBirthFull(), script).replace("\n", "<br/>"));
+
+            placeFull.setText("<html>" + normalize(info.getPlaceFull(bundle.getString("EntranceLabelFormat"),
                     bundle.getString("FloorLabelFormat"),
-                    bundle.getString("AppartmentLabelFormat")).replace("\n", "<br/>"));
+                    bundle.getString("AppartmentLabelFormat")), script).replace("\n", "<br/>"));
 
-            setAddressDate(info.getAddressDate());
+            setAddressDate(normalize(info.getAddressDate(), script));
 
-            docRegNo.setText(info.getDocRegNo());
-            issuingDate.setText(info.getIssuingDate());
-            expiryDate.setText(info.getExpiryDate());
-            issuingAuthority.setText(info.getIssuingAuthority());
+            docRegNo.setText(normalize(info.getDocRegNo(), script));
+            issuingDate.setText(normalize(info.getIssuingDate(), script));
+            expiryDate.setText(normalize(info.getExpiryDate(), script));
+            issuingAuthority.setText(normalize(info.getIssuingAuthority(), script));
         }
 
         public void setDetails(String nameFull, String personalNumber, String placeFull, String addressDate,
@@ -104,6 +107,11 @@ public class GUIPanel extends JPanel {
                 this.addressDate.setVisible(false);
                 this.addressDateLabel.setVisible(false);
             }
+        }
+
+        private String normalize(String value, SerbianScript.Script script) {
+            String safe = value == null ? "" : value;
+            return SerbianScript.normalize(safe, script);
         }
 
         public GUIPanel() {
@@ -198,7 +206,7 @@ public class GUIPanel extends JPanel {
             gbc_addressDate.anchor = GridBagConstraints.NORTH;
             gbc_addressDate.fill = GridBagConstraints.HORIZONTAL;
             gbc_addressDate.gridx = 1;
-            gbc_addressDate.gridy = 3;
+            gbc_addressDate.gridy = 2;
             panel_2.add(addressDate, gbc_addressDate);
 
             JLabel dateOfBirthLabel = new JLabel(bundle.getString("DateOfBirth")); //$NON-NLS-1$

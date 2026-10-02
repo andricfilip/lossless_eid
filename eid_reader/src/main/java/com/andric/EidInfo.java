@@ -88,8 +88,11 @@ public class EidInfo {
     }
     
     private String formatDate(String date) {
-        return date.length() == 8 ? 
-                String.format("%s.%s.%s", date.substring(0, 2), date.substring(2, 4), date.substring(4, 8)) 
+        if (date == null || date.isEmpty()) {
+            return null;
+        }
+        return date.length() == 8 ?
+                String.format("%s.%s.%s", date.substring(0, 2), date.substring(2, 4), date.substring(4, 8))
                 : date;
     }
 
@@ -160,10 +163,10 @@ public class EidInfo {
 
         out.append("\n");
 
-        if (rawState.contentEquals("SRB")) {
+        if ("SRB".equals(rawState)) {
             // small cheat for a better output
             out.append("REPUBLIKA SRBIJA");
-        } else {
+        } else if (rawState != null && !rawState.isEmpty()) {
             out.append(rawState);
         }
 
@@ -256,7 +259,7 @@ public class EidInfo {
         String value = get(Tag.ADDRESS_DATE);
         if (value == null || value.equals("01010001"))
             return null;
-        return formatDate(get(Tag.APPARTMENT_NUMBER));
+        return formatDate(value);
     }
 
     @Override

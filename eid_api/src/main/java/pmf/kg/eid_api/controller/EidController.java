@@ -18,7 +18,6 @@ import java.io.IOException;
 public class EidController {
 
     private final EidService service;
-    private final EidInfoService infoService;
     private final EidInfoService eidInfoService;
 
 

@@ -31,6 +31,7 @@ public class PdfReport
 
     public void write(final String filename) throws IOException, DocumentException
     {
+        SerbianScript.Script script = SerbianScript.resolveTargetScript(info.getNameFull());
 
         Document document = new Document();
         document.setPageSize(PageSize.A4);
@@ -59,50 +60,58 @@ public class PdfReport
         cb.beginText();
 
         cb.setFontAndSize(bf, 15);
-        writeText(cb, "ЧИТАЧ  ЕЛЕКТРОНСКЕ  ЛИЧНЕ  КАРТЕ: ШТАМПА  ПОДАТАКА", 62, 760);
+        writeText(cb, normalize("ČITAČ ELEKTRONSKE LIČNE KARTE: ŠTAMPA PODATAKA", script), 62, 760);
 
         cb.setFontAndSize(bf, 11);
-        writeLabel(cb, "Подаци о грађанину", 537);
-        writeLabel(cb, "Подаци о документу", 288);
+        writeLabel(cb, normalize("Podaci o građaninu", script), 537);
+        writeLabel(cb, normalize("Podaci o dokumentu", script), 288);
 
         cb.setFontAndSize(bf, 10);
-        writeLine(cb, "Презиме:", info.getSurname(), 513);
-        writeLine(cb, "Име:", info.getGivenName(), 489);
-        writeLine(cb, "Име једног родитеља:", info.getParentGivenName(), 463);
-        writeLine(cb, "Датум рођења:", info.getDateOfBirth(), 440);
-        writeLabel(cb, "Место рођења,", 415);
-        writeLabel(cb, "општина и држава:", 403);
-        writeLine(cb, "", info.getPlaceOfBirthFull().replace("\n", ", "), 409);
-        writeLabel(cb, "Пребивалиште и", 380);
-        writeLabel(cb, "адреса стана:", 368);
-        writePlace(cb, info);
-        writeLine(cb, "ЈМБГ:", info.getPersonalNumber(), 340);
-        writeLine(cb, "Пол:", info.getSex(), 316);
+        writeLine(cb, normalize("Prezime:", script), normalize(info.getSurname(), script), 513);
+        writeLine(cb, normalize("Ime:", script), normalize(info.getGivenName(), script), 489);
+        writeLine(cb, normalize("Ime jednog roditelja:", script), normalize(info.getParentGivenName(), script), 463);
+        writeLine(cb, normalize("Datum rođenja:", script), normalize(info.getDateOfBirth(), script), 440);
+        writeLabel(cb, normalize("Mesto rođenja, \n", script), 415);
+        writeLabel(cb, normalize("opština i država:", script), 403);
+        writeLine(cb, "", normalize(safe(info.getPlaceOfBirthFull()).replace("\n", ", "), script), 409);
+        writeLabel(cb, normalize("Prebivalište: ", script), 380);
+//        writeLabel(cb, normalize("adresa stana:", script), 368);
+        writePlace(cb, info, script);
+        writeLine(cb, normalize("JMBG:", script), normalize(info.getPersonalNumber(), script), 340);
+        writeLine(cb, normalize("Pol:", script), normalize(info.getSex(), script), 316);
 
-        writeLine(cb, "Документ издаје:", info.getIssuingAuthority(), 262);
-        writeLine(cb, "Број документа:", info.getDocRegNo(), 238);
-        writeLine(cb, "Датум издавања:", info.getIssuingDate(), 215);
-        writeLine(cb, "Важи до:", info.getExpiryDate(), 190);
+        writeLine(cb, normalize("Dokument izdaje:", script), normalize(info.getIssuingAuthority(), script), 262);
+        writeLine(cb, normalize("Broj dokumenta:", script), normalize(info.getDocRegNo(), script), 238);
+        writeLine(cb, normalize("Datum izdavanja:", script), normalize(info.getIssuingDate(), script), 215);
+        writeLine(cb, normalize("Važi do:", script), normalize(info.getExpiryDate(), script), 190);
 
         cb.endText();
 
         document.close();
     }
 
-    private void writePlace(PdfContentByte cb, EidInfo info) throws DocumentException, IOException {
+    private void writePlace(PdfContentByte cb, EidInfo info, SerbianScript.Script script) throws DocumentException, IOException {
 
-        String place[] = info.getPlaceFull("/ %s", "%s. sprat", "stan %s").split("\n");
+        String[] place = safe(info.getPlaceFull("/ %s", "%s. sprat", "stan %s")).split("\n");
 
         if (place.length > 1) {
             for(int i=2; i<place.length; i++)
                 place[1] += ", " + place[i];
 
-            writeLine(cb, "", place[0], 380);
-            writeLine(cb, "", place[1], 368);
+            writeLine(cb, "", normalize(place[0], script), 380);
+            writeLine(cb, "", normalize(place[1], script), 368);
         }
         else {
-            writeLine(cb, "", place[0], 374);
+            writeLine(cb, "", normalize(place[0], script), 374);
         }
+    }
+
+    private String normalize(String value, SerbianScript.Script script) {
+        return SerbianScript.normalize(safe(value), script);
+    }
+
+    private String safe(String value) {
+        return value == null ? "" : value;
     }
 
     private void drawRulerLine(PdfContentByte cb, int height)
